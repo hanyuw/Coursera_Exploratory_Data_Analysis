@@ -1,18 +1,25 @@
-## Fetches full dataset
-base_data <- read.table("household_power_consumption.txt", header = TRUE, sep = ';', na.strings = "?", check.names = FALSE, stringsAsFactors = FALSE, comment.char="", quote='\"')
-base_data$Date <- as.Date(base_data$Date, format="%d/%m/%Y")
-
-## Subsets the data
-data <- subset(base_data, subset = (Date >= "2007-02-01" & Date <= "2007-02-02"))
-rm(base_data)
-
-## Converts dates
-date_time <- paste(as.Date(data$Date), data$Time)
-data$Datetime <- as.POSIXct(date_time)
-
+## Hanyu Wang
+## Aug.17th
+## Coursera Exploratory Data Analysis Assignment 1
 ## Plot 2
-plot(data$Global_active_power~data$Datetime, type = "l", ylab = "Global Active Power (kilowatts)", xlab = "")
 
-## Saves data to file
-dev.copy(png, file = "plot2.png", height = 480, width = 480)
+## read the table and qualifying from 2007-02-01 to 2007-02-02
+# "One alternative is to read the data from just those dates rather than reading in the entire dataset and subsetting to those dates."
+# remains unsolvable.
+HPCtable = read.table("household_power_consumption.txt", header = TRUE, sep = ";", na.strings = "?", quote = "", stringsAsFactors = FALSE)
+HPCselectTable = subset(HPCtable, (as.Date(HPCtable$Date, format = "%d/%m/%Y")>= " 2007-02-01" & as.Date(HPCtable$Date, format = "%d/%m/%Y")<= " 2007-02-02"))
+
+# write.csv(HPCselectTable, file = "selecttable.csv")
+# HPCselectTable = read.csv("selecttable.csv", stringsAsFactors = FALSE)
+
+## Stripe the time and initalize a new column
+HPCselectTable$DateTime = strptime(paste(HPCselectTable$Date, HPCselectTable$Time), format = "%d/%m/%Y %H:%M:%S")
+#date_time = paste(HPCselectTable$Date, HPCselectTable$Time)
+#HPCselectTable$DateTime = date_time
+
+## Plotting the graph
+with(HPCselectTable, plot(DateTime, Global_active_power, xlab = "", ylab = "Global Active Power (kilowatts)", type = "l"))
+
+## Copy the plot to the file device
+dev.copy(png, file = "plot2.png")
 dev.off()

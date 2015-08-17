@@ -1,25 +1,33 @@
-## Fetches full dataset
-base_data <- read.table("household_power_consumption.txt", header = TRUE, sep = ';', na.strings = "?", check.names = FALSE, stringsAsFactors = FALSE, comment.char="", quote='\"')
-base_data$Date <- as.Date(base_data$Date, format="%d/%m/%Y")
-
-## Subsets the data
-data <- subset(base_data, subset = (Date >= "2007-02-01" & Date <= "2007-02-02"))
-rm(base_data)
-
-## Converts dates
-date_time <- paste(as.Date(data$Date), data$Time)
-data$Datetime <- as.POSIXct(date_time)
-
+## Hanyu Wang
+## Aug.17th
+## Coursera Exploratory Data Analysis Assignment 1
 ## Plot 3
-with(data, {
-        plot(Sub_metering_1~Datetime, type = "l",
-             ylab = "Global Active Power (kilowatts)", xlab = "")
-        lines(Sub_metering_2~Datetime, col = 'Red')
-        lines(Sub_metering_3~Datetime, col = 'Blue')
-})
-legend("topright", col=c("black", "red", "blue"), lty = 1, lwd = 2, 
-       legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"))
 
-## Saves data to file
-dev.copy(png, file = "plot3.png", height = 480, width = 480)
+## read the table and qualifying from 2007-02-01 to 2007-02-02
+# "One alternative is to read the data from just those dates rather than reading in the entire dataset and subsetting to those dates."
+# remains unsolvable.
+HPCtable = read.table("household_power_consumption.txt", header = TRUE, sep = ";", na.strings = "?", quote = "", stringsAsFactors = FALSE)
+HPCselectTable = subset(HPCtable, (as.Date(HPCtable$Date, format = "%d/%m/%Y")>= " 2007-02-01" & as.Date(HPCtable$Date, format = "%d/%m/%Y")<= " 2007-02-02"))
+
+# write.csv(HPCselectTable, file = "selecttable.csv")
+# HPCselectTable = read.csv("selecttable.csv", stringsAsFactors = FALSE)
+
+## Stripe the time and initalize a new column
+HPCselectTable$DateTime = strptime(paste(HPCselectTable$Date, HPCselectTable$Time), format = "%d/%m/%Y %H:%M:%S")
+#date_time = paste(HPCselectTable$Date, HPCselectTable$Time)
+#HPCselectTable$DateTime = date_time
+
+
+with(HPCselectTable, plot(DateTime, Sub_metering_1, type = "n", xlab = "", ylab = "Energy sub metering"))
+with(HPCselectTable, points(DateTime, Sub_metering_1, col = "BLACK", type = "l"))
+with(HPCselectTable, points(DateTime, Sub_metering_2, col = "RED", type = "l"))
+with(HPCselectTable, points(DateTime, Sub_metering_3, col = "BLUE", type = "l"))
+
+## Add a legend
+legend("topright", lty = 1, col = c("BLACK", "RED", "BLUE"), legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"))
+
+## Save the plot to the file device.
+dev.copy(png, "plot3.png", width = 480, height = 480)
 dev.off()
+
+## Problem unsolved: part of the legend is missing.
