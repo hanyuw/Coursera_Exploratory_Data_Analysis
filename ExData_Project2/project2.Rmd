@@ -1,0 +1,102 @@
+---
+title: "Exploratory Data Analysis Project 2"
+author: "Halley Wang"
+date: "September 4, 2015"
+output: html_document
+---
+
+
+
+```{r golbal_options, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, result = "asis", message=FALSE, fig.height=7, fig.width=12)
+```
+
+```{r load_package, results = "hide"}
+## Loading the necessary packages
+library(ggplot2)
+
+```
+
+```{r load data, cache = TRUE}
+SCC <- readRDS("Source_Classification_Code.rds")
+NEI <- readRDS("summarySCC_PM25.rds")
+```
+
+1. Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
+
+```{r question1, cache = TRUE}
+# tapply method. however this method can hardly retrieve the year element. Have to input it manually.
+emissionSum = with(NEI, tapply(Emissions, year, sum))
+yearunique = unique(NEI$year)
+emissionT1 = data.frame(year = yearunique, emission = emissionSum)
+
+# Initial the points
+with(emissionT1, plot(year, emission))
+# Connect by line:
+with(emissionT1, lines(year, emission))
+# Add a title:
+title("Total PM2.5 Emmissions in US(1999~2008)")
+```
+
+2. Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == 24510) from 1999 to 2008? Use the base plotting system to make a plot answering this question.
+
+```{r question2, cache = TRUE}
+# aggregate method. Easy and feasible.
+BaltimoreT = subset(NEI, fips == 24510)
+emissionT2 = aggregate(Emissions~year, data = BaltimoreT, sum)
+
+# Initial the points
+with(emissionT2, plot(year, Emissions))
+# Connect by line:
+with(emissionT2, lines(year, Emissions))
+# Add a title:
+title("Total PM2.5 Emmissions in Baltimore(1999~2008)")
+
+```
+
+
+3. Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999-2008 for Baltimore City? Which have seen increases in emissions from 1999-2008? Use the ggplot2 plotting system to make a plot answer this question.
+
+```{r question3, cache = TRUE}
+
+emissionT3 = aggregate(Emissions~year+type, data = BaltimoreT, sum)
+# Establish the ggplot object
+p = ggplot(emissionT3, aes(year, Emissions))
+
+# Add point and line layers(Separating type by colors)
+# Add facets along the types
+# Add title
+p + geom_point()+geom_line(aes(color = type)) + facet_grid( .~type) + labs(title = "Emissions under different types from 1999~2008 in Baltimore")
+```
+
+
+
+
+
+4. Across the United States, how have emissions from coal combustion-related sources changed from 1999-2008?
+
+
+
+
+
+
+
+5. How have emissions from motor vehicle sources changed from 1999-2008 in Baltimore City?
+
+
+
+
+
+
+
+
+
+6. Compare emissions from motor vehicle sources in Baltimore City with emissions from motor vehicle sources in Los Angeles County, California (fips == 06037). Which city has seen greater changes over time in motor vehicle emissions?
+
+
+
+
+
+
+
+
